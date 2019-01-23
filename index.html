@@ -73,8 +73,7 @@ document.querySelector('#connect_button').addEventListener('click', event => {
 });
 
 document.querySelector('#disconnect_button').addEventListener('click', event => {
-  pLZTHXRemote.request()
-  .then(_ => pLZTHXRemote.disconnect())
+  pLZTHXRemote.disconnect()
   .catch(error => { console.log(error) });
 });
 </script>
