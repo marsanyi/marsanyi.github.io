@@ -65,14 +65,14 @@ class PLZTHXRemote {
 
 var pLZTHXRemote = new PLZTHXRemote();
 
-document.querySelector('connect_button').addEventListener('click', event => {
+document.querySelector('#connect_button').addEventListener('click', event => {
   pLZTHXRemote.request()
   .then(_ => pLZTHXRemote.connect())
   .then(_ => { /* Do something with pLZTHXRemote... */})
   .catch(error => { console.log(error) });
 });
 
-document.querySelector('disconnect_button').addEventListener('click', event => {
+document.querySelector('#disconnect_button').addEventListener('click', event => {
   pLZTHXRemote.request()
   .then(_ => pLZTHXRemote.disconnect())
   .catch(error => { console.log(error) });
