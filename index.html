@@ -1,1 +1,80 @@
-Hello, world
+<html>
+<h1>PLZTHX Remote Control</h1>
+<p>
+    <button type="button" id="connect_button">Connect</button>
+    <button type="button" id="button_1">1</button>
+    <button type="button" id="button_2">2</button>
+    <button type="button" id="button_3">3</button>
+    <button type="button" id="button_4">4</button>
+    <button type="button" id="disconnect_button">Disconnect</button>
+</p>
+</html>
+
+<script>
+class PLZTHXRemote {
+
+  constructor() {
+    this.device = null;
+    this.onDisconnected = this.onDisconnected.bind(this);
+  }
+  
+  request() {
+    let options = {
+      "filters": [{
+        "name": "PLZTHX_Display"
+      }],
+      "optionalServices": [0x0000]
+    };
+    return navigator.bluetooth.requestDevice(options)
+    .then(device => {
+      this.device = device;
+      this.device.addEventListener('gattserverdisconnected', this.onDisconnected);
+    });
+  }
+  
+  connect() {
+    if (!this.device) {
+      return Promise.reject('Device is not connected.');
+    }
+    return this.device.gatt.connect();
+  }
+  
+  readSequenceid() {
+    return this.device.gatt.getPrimaryService(0x0000)
+    .then(service => service.getCharacteristic(0x0001))
+    .then(characteristic => characteristic.readValue());
+  }
+
+  writeSequenceid(data) {
+    return this.device.gatt.getPrimaryService(0x0000)
+    .then(service => service.getCharacteristic(0x0001))
+    .then(characteristic => characteristic.writeValue(data));
+  }
+
+  disconnect() {
+    if (!this.device) {
+      return Promise.reject('Device is not connected.');
+    }
+    return this.device.gatt.disconnect();
+  }
+
+  onDisconnected() {
+    console.log('Device is disconnected.');
+  }
+}
+
+var pLZTHXRemote = new PLZTHXRemote();
+
+document.querySelector('connect_button').addEventListener('click', event => {
+  pLZTHXRemote.request()
+  .then(_ => pLZTHXRemote.connect())
+  .then(_ => { /* Do something with pLZTHXRemote... */})
+  .catch(error => { console.log(error) });
+});
+
+document.querySelector('disconnect_button').addEventListener('click', event => {
+  pLZTHXRemote.request()
+  .then(_ => pLZTHXRemote.disconnect())
+  .catch(error => { console.log(error) });
+});
+</script>
