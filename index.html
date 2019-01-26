@@ -1,1 +1,192 @@
-../../index.html
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<html>
+<h1 class="display-4">PLZTHX Remote</h1>
+
+<p>
+    <button type="button" class="btn btn-secondary" id="connect">Connect</button type="button">
+    <button type="button" class="btn btn-secondary" id="disconnect">Disconnect</button type="button">
+</p>
+
+<div class="container">
+<div class="row">
+    <div class="col"></div>
+    <div class="col">
+        <button type="button" class="btn btn-success btn-lg btn-block" style="height:7pc;" id="sequence_id_0" value=3>T</button>
+    </div>
+    <div class="col"></div>
+</div>
+<div class="row">
+    <div class="col"></div>
+    <div class="col-4">
+        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_1" value=0><</button>
+    </div>
+    <div class="col-4">
+        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_2" value=1>></button>
+    </div>
+    <div class="col"></div>
+</div>
+<div class="row">
+    <div class="col"></div>
+    <div class="col">
+        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_3" value=2>v</button>
+    </div>
+    <div class="col"></div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <h3>Live Output</h3>
+        <div id="output" class="output card" style="height: 10pc;">
+          <div id="content"></div>
+          <div id="status"></div>
+          <pre id="log"></pre>
+        </div>
+    </div>
+</div>
+
+</html>
+
+<script>    
+function log(message) {
+    var line = (typeof message === 'string' ? message : JSON.stringify(message));
+    document.querySelector('#log').textContent += line + '\n';
+};
+
+class PLZTHXDisplay {
+
+  constructor() {
+    this.device = null;
+    this.onDisconnected = this.onDisconnected.bind(this);
+    this.serviceUuid = "71550010-0cce-2127-8699-d77a0049ad29";
+    this.characteristicUuid = "71550011-0cce-2127-8699-d77a0049ad29";
+  }
+  
+  request() {
+    let options = {
+      "filters": [{
+        "name": "PLZTHX_Display",
+        "services": [this.serviceUuid]
+      }],
+      "optionalServices": [0x0010]
+    };
+    return navigator.bluetooth.requestDevice(options)
+    .then(device => {
+      this.device = device;
+      this.device.addEventListener('gattserverdisconnected', this.onDisconnected);
+    });
+  }
+  
+  connect() {
+    if (!this.device) {
+      return Promise.reject('Device is not connected.');
+    }
+    return this.device.gatt.connect()
+    .then(server => {
+        log('Getting Service...');
+        return server.getPrimaryService(this.serviceUuid);
+    })
+    .then(service => {
+        log('Getting Characteristics...');
+
+        // Get all characteristics.
+        return service.getCharacteristics();
+    })
+    .then(characteristics => {
+        log('> Characteristics: ' +
+          characteristics.map(c => c.uuid).join('\n' + ' '.repeat(19)));
+    })
+  }
+  
+  readSequenceid() {
+    return this.device.gatt.getPrimaryService(this.serviceUuid)
+    .then(service => service.getCharacteristic(this.characteristicUuid))
+    .then(characteristic => characteristic.readValue());
+  }
+
+  writeSequenceid(data) {
+    return this.device.gatt.getPrimaryService(this.serviceUuid)
+    .then(service => service.getCharacteristic(this.characteristicUuid))
+    .then(characteristic => characteristic.writeValue(data));
+  }
+
+  disconnect() {
+    if (!this.device) {
+      return Promise.reject('Device is not connected.');
+    }
+    return this.device.gatt.disconnect();
+  }
+
+  onDisconnected() {
+    console.log('Device is disconnected.');
+    log('Device is disconnected');
+  }
+}
+
+var pLZTHXDisplay = new PLZTHXDisplay();
+
+document.querySelector('#connect').addEventListener('click', event => {
+  pLZTHXDisplay.request()
+  .then(_ => pLZTHXDisplay.connect())
+  .then(_ => { /* do something */ })
+  .catch(error => { console.log(error); log(error); });
+});
+
+document.querySelector('#disconnect').addEventListener('click', event => {
+  pLZTHXDisplay.disconnect()
+  .catch(error => { console.log(error); log(error); });
+});
+
+function write_sequence_id(element)
+{
+    var value = element.value
+    log("clicked " + value);
+
+    pLZTHXDisplay.writeSequenceid(Uint8Array.of(value));
+}
+
+document.querySelector('#sequence_id_0').addEventListener('click', event => {
+    write_sequence_id(event.srcElement);
+});
+document.querySelector('#sequence_id_1').addEventListener('click', event => {
+    write_sequence_id(event.srcElement);
+});
+document.querySelector('#sequence_id_2').addEventListener('click', event => {
+    write_sequence_id(event.srcElement);
+});
+document.querySelector('#sequence_id_3').addEventListener('click', event => {
+    write_sequence_id(event.srcElement);
+});
+
+/*
+function onConnectButtonClick() {
+  let serviceUuid = "71550010-0cce-2127-8699-d77a0049ad29"
+
+  log('Requesting Bluetooth Device...');
+  navigator.bluetooth.requestDevice({filters: [{services: [serviceUuid]}]})
+  .then(device => {
+    log('Connecting to GATT Server...');
+    return device.gatt.connect();
+  })
+  .then(server => {
+    log('Getting Service...');
+    return server.getPrimaryService(serviceUuid);
+  })
+  .then(service => {
+    log('Getting Characteristics...');
+
+    // Get all characteristics.
+    return service.getCharacteristics();
+  })
+  .then(characteristics => {
+    log('> Characteristics: ' +
+      characteristics.map(c => c.uuid).join('\n' + ' '.repeat(19)));
+  })
+  .catch(error => {
+    log('Argh! ' + error);
+  });
+}
+    
+document.querySelector('#connect').addEventListener('click', onConnectButtonClick)
+*/
+
+</script>
