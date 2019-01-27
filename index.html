@@ -8,24 +8,24 @@
 <div class="row">
     <div class="col"></div>
     <div class="col">
-        <button type="button" class="btn btn-success btn-lg btn-block" style="height:7pc;" id="sequence_id_0" value=3>T</button>
+        <button type="button" class="btn btn-success btn-lg btn-block" style="height:7pc;" id="sequence_id_0" value=3><h1>T</h1></button>
     </div>
     <div class="col"><span class="badge badge-pill badge-success invisible" id="connected_indicator">Connected</span></div>
 </div>
 <div class="row">
     <div class="col"></div>
     <div class="col-4">
-        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_1" value=0><</button>
+        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_1" value=0><h1><</h1></button>
     </div>
     <div class="col-4">
-        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_2" value=1>></button>
+        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_2" value=1><h1>></h1></button>
     </div>
     <div class="col"></div>
 </div>
 <div class="row">
     <div class="col"></div>
     <div class="col">
-        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_3" value=2>v</button>
+        <button type="button" class="btn btn-primary btn-lg btn-block" style="height:7pc;" id="sequence_id_3" value=2><h1>v</h1></button>
     </div>
     <div class="col"></div>
 </div>
@@ -166,16 +166,16 @@ function write_sequence_id(element)
 }
 
 document.querySelector('#sequence_id_0').addEventListener('click', event => {
-    write_sequence_id(event.srcElement);
+    write_sequence_id(event.currentTarget);
 });
 document.querySelector('#sequence_id_1').addEventListener('click', event => {
-    write_sequence_id(event.srcElement);
+    write_sequence_id(event.currentTarget);
 });
 document.querySelector('#sequence_id_2').addEventListener('click', event => {
-    write_sequence_id(event.srcElement);
+    write_sequence_id(event.currentTarget);
 });
 document.querySelector('#sequence_id_3').addEventListener('click', event => {
-    write_sequence_id(event.srcElement);
+    write_sequence_id(event.currentTarget);
 });
 
 /*
